@@ -21,6 +21,10 @@ jobs:
         java-version: '21'
         distribution: 'temurin'
 
+    # This ensures the Android SDK tools are ready and licenses are accepted
+    - name: Setup Android SDK
+      uses: android-actions/setup-android@v3
+
     - name: Setup Gradle
       uses: gradle/actions/setup-gradle@v3
       with:
@@ -34,11 +38,9 @@ jobs:
         BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
         CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
       run: |
-        # Locate the compiled APK file inside the app folder
         APK_PATH=$(ls app/build/outputs/apk/debug/*.apk | head -n 1)
         echo "Found APK at: $APK_PATH"
         
-        # Send it using safe form fields to prevent curl URL encoding issues
         curl -F document=@"$APK_PATH" \
              -F chat_id="$CHAT_ID" \
              -F caption="New Sandbox Build is Ready! 🚀" \
