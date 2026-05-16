@@ -1,0 +1,45 @@
+name: Android Build Sandbox
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v4
+
+    - name: Set up JDK 21
+      uses: actions/setup-java@v4
+      with:
+        java-version: '21'
+        distribution: 'temurin'
+
+    - name: Setup Gradle
+      uses: gradle/actions/setup-gradle@v3
+      with:
+        gradle-version: 8.5
+
+    - name: Build Debug APK
+      run: gradle assembleDebug
+
+    - name: Send APK to Telegram
+      env:
+        BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+        CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+      run: |
+        # Locate the compiled APK file inside the app folder
+        APK_PATH=$(ls app/build/outputs/apk/debug/*.apk | head -n 1)
+        echo "Found APK at: $APK_PATH"
+        
+        # Send it using safe form fields to prevent curl URL encoding issues
+        curl -F document=@"$APK_PATH" \
+             -F chat_id="$CHAT_ID" \
+             -F caption="New Sandbox Build is Ready! 🚀" \
+             "https://api.telegram.org/bot${BOT_TOKEN}/sendDocument"
