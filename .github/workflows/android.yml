@@ -29,8 +29,16 @@ jobs:
     - name: Build Debug APK
       run: gradle assembleDebug
 
-    - name: Upload Sandbox APK
-      uses: actions/upload-artifact@v4
-      with:
-        name: Sandbox-App-Debug
-        path: "build/outputs/apk/debug/*.apk" # This quotes the path and catches whatever name Gradle gave it
+    - name: Send APK to Telegram
+      env:
+        BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+        CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+      run: |
+        # Dynamically find the APK file path
+        APK_PATH=$(ls build/outputs/apk/debug/*.apk | head -n 1)
+        
+        echo "Found APK at: $APK_PATH"
+        
+        # Send it to Telegram using curl
+        curl -F document=@"$APK_PATH" \
+             "https://api.telegram.org/bot${BOT_TOKEN}/sendDocument?chat_id=${CHAT_ID}&caption=New Sandbox Build is Ready! 🚀"
