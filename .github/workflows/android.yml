@@ -5,7 +5,7 @@ on:
     branches: [ "main" ]
   pull_request:
     branches: [ "main" ]
-  workflow_dispatch: # This adds the "Run workflow" button on GitHub
+  workflow_dispatch:
 
 jobs:
   build:
@@ -20,12 +20,11 @@ jobs:
       with:
         java-version: '21'
         distribution: 'temurin'
-        cache: gradle
 
-    - name: Grant Execute Permission for Gradlew
-      run: chmod +x gradlew
-      continue-on-error: true
+    - name: Setup Gradle
+      uses: gradle/actions/setup-gradle@v3
+      with:
+        gradle-version: 8.5
 
     - name: Build Debug APK
-      run: ./gradlew assembleDebug
-      continue-on-error: true
+      run: gradle assembleDebug
