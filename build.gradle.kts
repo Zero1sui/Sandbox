@@ -4,15 +4,22 @@ plugins {
 }
 
 android {
-    namespace = "com.hellyeah.sandbox"
+    namespace = "com.example.sandbox"
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "com.hellyeah.sandbox"
+        applicationId = "com.example.sandbox"
         minSdk = 26
         targetSdk = 34
         versionCode = 1
         versionName = "1.0"
+    }
+
+    // This forces Gradle to find your MainActivity file in our flat layout
+    sourceSets {
+        getByName("main") {
+            java.srcDirs("src/main/java")
+        }
     }
 
     buildFeatures {
